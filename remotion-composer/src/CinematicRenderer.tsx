@@ -458,8 +458,11 @@ export const calculateCinematicMetadata: CalculateMetadataFunction<CinematicRend
     return {
       durationInFrames: Math.max(1, Math.ceil(totalSeconds * FPS)),
       fps: FPS,
-      width: 1920,
-      height: 1080,
+      // Default 16:9, but honor explicit dimensions in props (e.g. 1080x1920
+      // for vertical 9:16 social cuts). Scenes use objectFit:cover so 16:9
+      // footage center-crops cleanly into a vertical frame.
+      width: typeof props.width === "number" ? props.width : 1920,
+      height: typeof props.height === "number" ? props.height : 1080,
     };
   };
 

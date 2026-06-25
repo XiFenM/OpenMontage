@@ -1,6 +1,6 @@
 PYTHON ?= python3
 
-.PHONY: setup install install-dev install-gpu test test-contracts lint clean preflight demo demo-list hyperframes-doctor hyperframes-warm
+.PHONY: setup install install-dev install-gpu test test-contracts lint clean preflight demo demo-list hyperframes-doctor hyperframes-warm memory-save memory-restore
 
 # ---- One-command setup ----
 
@@ -80,3 +80,12 @@ lint:
 
 clean:
 	$(PYTHON) -c "import pathlib, shutil; [shutil.rmtree(p) for p in pathlib.Path('.').rglob('__pycache__')]; [p.unlink() for p in pathlib.Path('.').rglob('*.pyc')]"
+
+# ---- Agent memory sync ----
+# Live (gitignored) harness memory <-> durable committed copy in docs/agent-memory.
+# Backed by scripts/sync-memory.sh so it also works without make.
+memory-save:
+	@bash scripts/sync-memory.sh save
+
+memory-restore:
+	@bash scripts/sync-memory.sh restore

@@ -198,6 +198,32 @@ VIDEO_GEN_LOCAL_MODEL=wan2.1-1.3b  # or wan2.1-14b, hunyuan-1.5, ltx2-local, cog
 
 </details>
 
+### Migrating to a New Machine (Rebuild Checklist)
+
+A few things are intentionally **not** committed — generated assets (`projects/`),
+your secrets (`.env`), and the agent's live memory store (`.claude/memory/`) are all
+gitignored. So after cloning onto a new machine:
+
+1. **Install dependencies** — `make setup` (or the manual line above). Installs the
+   Python deps, the Remotion composer (`npm install`), and Piper.
+   - If tool discovery fails with `ModuleNotFoundError: numpy`, run `pip install numpy`
+     — a few tools import it at load time (`make setup` already covers this).
+   - Full capability needs the **FFmpeg** binary, **Node.js ≥ 22**, and
+     `remotion-composer/node_modules` (created by `npm install`).
+2. **Add your API keys** — `cp .env.example .env` and fill in the keys you use
+   (see above). `.env` is never committed, so it won't come across with the repo.
+3. **Restore agent memory** — `make memory-restore` (or
+   `bash scripts/sync-memory.sh restore`) re-seeds `.claude/memory/` from the
+   committed copy in [`docs/agent-memory/`](docs/agent-memory/). Only repo-relevant,
+   portable memories are stored there; machine-specific ones stay local. Run
+   `make memory-save` before committing whenever you want new memories to travel.
+4. **Verify** — `make preflight` reports which providers and render runtimes are
+   actually configured on the new machine.
+
+> **Remotion render produces no output file?** Remotion's bundled Chrome may fail to
+> launch in some environments. `remotion-composer/remotion.config.ts` auto-detects a
+> Playwright-installed Chrome; otherwise set `REMOTION_BROWSER_EXECUTABLE=/path/to/chrome`.
+
 ---
 
 ## What You Get With Zero API Keys

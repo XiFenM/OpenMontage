@@ -197,6 +197,19 @@ VIDEO_GEN_LOCAL_MODEL=wan2.1-1.3b  # 或 wan2.1-14b, hunyuan-1.5, ltx2-local, co
 
 </details>
 
+### 迁移到新机器（重建清单）
+
+有几样东西是**故意不提交**的——生成的素材（`projects/`）、你的密钥（`.env`）、以及智能体的实时记忆库（`.claude/memory/`）都被 gitignore 了。所以在新机器上 clone 之后：
+
+1. **安装依赖** — `make setup`（或上面的手动命令)。会装好 Python 依赖、Remotion composer（`npm install`)和 Piper。
+   - 如果工具发现报 `ModuleNotFoundError: numpy`,执行 `pip install numpy` —— 少数工具在加载时会导入它(`make setup` 已包含)。
+   - 完整能力需要 **FFmpeg** 二进制、**Node.js ≥ 22**、以及 `remotion-composer/node_modules`(由 `npm install` 生成)。
+2. **添加你的 API 密钥** — `cp .env.example .env` 并填入你使用的密钥(见上文)。`.env` 不会被提交,所以不会随仓库一起带过来。
+3. **恢复智能体记忆** — `make memory-restore`(或 `bash scripts/sync-memory.sh restore`)会从提交在 [`docs/agent-memory/`](docs/agent-memory/) 里的副本重新播种 `.claude/memory/`。那里只保存与本仓库相关、可跨机器通用的记忆;机器特有的记忆只留在本地。每当你想让新记忆随仓库走时,提交前先跑 `make memory-save`。
+4. **验证** — `make preflight` 会显示新机器上实际配置好了哪些提供商和渲染运行时。
+
+> **Remotion 渲染没有产出文件?** 某些环境下 Remotion 自带的 Chrome 启动会失败。`remotion-composer/remotion.config.ts` 会自动探测 Playwright 安装的 Chrome;否则可设置 `REMOTION_BROWSER_EXECUTABLE=/path/to/chrome`。
+
 ---
 
 ## 零 API 密钥的体验
